@@ -1,210 +1,134 @@
-🎶 Free MP3 Downloader
-Una sencilla aplicación web construida con Flask que permite a los usuarios descargar audio MP3 buscando títulos de canciones o obteniendo listas de canciones de álbumes/artistas utilizando la API de MusicBrainz.
+# Free MP3 Downloader
 
-Características
-Búsqueda y Descarga: Permite descargar canciones individuales o listas de canciones.
+This is a simple web application built with Flask that allows users to download MP3 audio by searching song titles or fetching tracklists from albums/artists using MusicBrainz API. It supports single songs, lists of songs, and automatic folder organization for albums or artists.
 
-Obtención de Listas: Recupera listas de canciones de álbumes o todas las canciones de un artista (limitado a 100 temas únicos).
+**Features:**
+- Search and download individual songs or lists.
+- Fetch tracklists from albums or all songs from an artist (limited to 100 unique tracks).
+- Dark/light mode toggle.
+- Progress bar for multiple downloads.
+- Legal notice and thanks to contributors.
 
-Organización Automática: Organiza los archivos descargados en carpetas para álbumes o artistas.
+## Usage Instructions
 
-Temas: Alternancia de modo oscuro/claro.
+### Run the App
+- After installation (see below), execute `python app.py` in your terminal.
+- Open a web browser and navigate to `http://127.0.0.1:5000/`.
 
-Progreso: Barra de progreso para descargas múltiples.
+### Fetching Tracklists
+- Enter the artist name (required for fetching all songs, optional for albums).
+- Enter the album name (optional; leave empty or it will fetch up to 100 songs from the artist if artist is provided).
+- Click "Fetch Tracklist". The textarea will populate with song titles in the format "Title - Artist".
+- If successful, a modal will confirm; edit the list if needed.
 
-Avisos: Incluye aviso legal y agradecimientos a los colaboradores.
+### Downloading MP3s
+- Enter song titles in the textarea (one per line) or use the fetched list.
+- Click "Download MP3(s)".
+- For multiple downloads, a progress bar shows status.
+- Upon completion, download links appear, and files are saved in the `downloads` folder (or subfolder for albums/artists).
+- A modal notifies when done, with file location info.
+
+### Theme Toggle
+- Click the sun/moon icon in the top-right to switch between dark and light modes.
 
-💻 Uso e Instrucciones
-Ejecutar la Aplicación
-Después de la instalación, ejecuta python app.py en tu terminal.
+**Notes:**
+- Downloads aim for the highest quality (~320kbps equivalent, source-dependent).
+- Use responsibly; respect copyrights and YouTube's terms.
 
-Abre un navegador web y navega a http://127.0.0.1:5000/.
+## Installation and Execution
 
-Obtener Listas de Canciones (Fetching Tracklists)
-Introduce el nombre del artista (obligatorio para obtener todas las canciones, opcional para álbumes).
+### Windows
 
-Introduce el nombre del álbum (opcional; si se deja vacío y se proporciona el artista, se obtendrán hasta 100 canciones del artista).
+1. **Install Python**:
+   - Download and install Python from [python.org](https://www.python.org). Ensure you check "Add Python to PATH" during installation.
 
-Haz clic en "Fetch Tracklist".
+2. **Install Dependencies**:
+   - Open Command Prompt.
+   - Run: `pip install flask yt-dlp musicbrainzngs`.
 
-El área de texto se rellenará con títulos de canciones en el formato "Título - Artista". Si tiene éxito, un modal lo confirmará; edita la lista si es necesario.
+3. **Install FFmpeg**:
+   - Download from [ffmpeg.org/download.html](https://ffmpeg.org/download.html) (e.g., static build for Windows).
+   - Extract the archive and add the `bin` folder to your system's PATH:
+     - Search for "Edit the system environment variables" in Start menu.
+     - Click "Environment Variables" > Edit "Path" under System variables > Add the path to FFmpeg's `bin` (e.g., `C:\ffmpeg\bin`).
+   - Verify: Run `ffmpeg -version` in Command Prompt.
 
-Descargar MP3s
-Introduce los títulos de las canciones en el área de texto (uno por línea) o utiliza la lista obtenida.
+4. **Run the App**:
+   - Save the code as `app.py` in a folder.
+   - In Command Prompt, navigate to the folder: `cd path\to\folder`.
+   - Run: `python app.py`.
+   - Access at `http://127.0.0.1:5000/`.
 
-Haz clic en "Download MP3(s)".
+### Linux
 
-Para descargas múltiples, una barra de progreso mostrará el estado.
+1. **Install Python**:
+   - Most distributions have Python pre-installed. Check: `python3 --version`.
+   - If not, install: `sudo apt update && sudo apt install python3 python3-pip` (Ubuntu/Debian) or equivalent for your distro.
 
-Al finalizar, aparecerán los enlaces de descarga y los archivos se guardarán en la carpeta downloads (o una subcarpeta para álbumes/artistas). Un modal notificará cuando termine, con información sobre la ubicación del archivo.
+2. **Install Dependencies**:
+   - Run: `pip install flask yt-dlp musicbrainzngs`.
 
-Alternancia de Tema
-Haz clic en el icono de sol/luna en la esquina superior derecha para cambiar entre los modos oscuro y claro.
+3. **Install FFmpeg**:
+   - Run: `sudo apt install ffmpeg` (Ubuntu/Debian) or equivalent.
+   - Verify: `ffmpeg -version`.
 
-Notas
-Las descargas buscan la máxima calidad disponible (~320kbps equivalente, dependiendo de la fuente).
+4. **Run the App**:
+   - Save the code as `app.py`.
+   - In terminal, navigate to the folder: `cd path/to/folder`.
+   - Run: `python3 app.py`.
+   - Access at `http://127.0.0.1:5000/`.
 
-Utilízalo de forma responsable; respeta los derechos de autor y los términos de YouTube.
+### Mac
 
-🛠️ Instalación y Ejecución
-La aplicación requiere Python, Flask, yt-dlp, musicbrainzngs y FFmpeg.
+1. **Install Python**:
+   - Download from [python.org](https://www.python.org) or use Homebrew: `brew install python`.
 
-Windows
-Instalar Python:
+2. **Install Dependencies**:
+   - Run: `pip install flask yt-dlp musicbrainzngs`.
 
-Descarga e instala Python desde python.org.
+3. **Install FFmpeg**:
+   - Use Homebrew: `brew install ffmpeg`.
+   - Verify: `ffmpeg -version`.
 
-Asegúrate de marcar "Add Python to PATH" durante la instalación.
+4. **Run the App**:
+   - Save the code as `app.py`.
+   - In Terminal, navigate to the folder: `cd path/to/folder`.
+   - Run: `python app.py`.
+   - Access at `http://127.0.0.1:5000/`.
 
-Instalar Dependencias:
+## Technical Explanation
 
-Abre el Símbolo del sistema.
-
-Ejecuta:
-
-Bash
-
-pip install flask yt-dlp musicbrainzngs
-Instalar FFmpeg:
-
-Descárgalo de ffmpeg.org/download.html (p. ej., static build para Windows).
-
-Extrae el archivo y añade la carpeta bin a la variable de entorno PATH de tu sistema:
-
-Busca "Editar las variables de entorno del sistema" en el menú Inicio.
-
-Haz clic en "Variables de entorno" > Editar "Path" en Variables del sistema > Añade la ruta a la carpeta bin de FFmpeg (p. ej., C:\ffmpeg\bin).
-
-Verifica: Ejecuta ffmpeg -version en el Símbolo del sistema.
-
-Ejecutar la App:
-
-Guarda el código como app.py en una carpeta.
-
-En el Símbolo del sistema, navega a la carpeta: cd ruta\a\la\carpeta.
-
-Ejecuta:
-
-Bash
-
-python app.py
-Accede en http://127.0.0.1:5000/.
-
-Linux
-Instalar Python:
-
-La mayoría de las distribuciones ya lo tienen preinstalado. Verifica: python3 --version.
-
-Si no, instala: sudo apt update && sudo apt install python3 python3-pip (Ubuntu/Debian) o el equivalente para tu distribución.
-
-Instalar Dependencias:
-
-Ejecuta:
-
-Bash
-
-pip install flask yt-dlp musicbrainzngs
-Instalar FFmpeg:
-
-Ejecuta: sudo apt install ffmpeg (Ubuntu/Debian) o el equivalente.
-
-Verifica: ffmpeg -version.
-
-Ejecutar la App:
-
-Guarda el código como app.py.
-
-En la terminal, navega a la carpeta: cd ruta/a/la/carpeta.
-
-Ejecuta:
-
-Bash
-
-python3 app.py
-Accede en http://127.0.0.1:5000/.
-
-Mac
-Instalar Python:
-
-Descárgalo de python.org o usa Homebrew: brew install python.
-
-Instalar Dependencias:
-
-Ejecuta:
-
-Bash
-
-pip install flask yt-dlp musicbrainzngs
-Instalar FFmpeg:
-
-Usa Homebrew:
-
-Bash
-
-brew install ffmpeg
-Verifica: ffmpeg -version.
-
-Ejecutar la App:
-
-Guarda el código como app.py.
-
-En Terminal, navega a la carpeta: cd ruta/a/la/carpeta.
-
-Ejecuta:
-
-Bash
-
-python app.py
-Accede en http://127.0.0.1:5000/.
-
-⚙️ Explicación Técnica
-Esta aplicación es un servidor web basado en Flask que integra:
-
-yt-dlp para la extracción de audio de YouTube.
-
-MusicBrainz para la obtención de listas de canciones.
-
-JavaScript del lado del cliente para las interacciones de la UI.
-
-Funcionamiento Interno
-Frontend (HTML/CSS/JS)
-La UI se renderiza a través de una plantilla tipo Jinja en Flask.
-
-JavaScript maneja el envío de formularios mediante AJAX, la consulta de progreso (polling), la alternancia de temas (almacenada en localStorage) y los modales para feedback.
-
-CSS proporciona un diseño responsive con gradientes, sombras y colores específicos para cada modo.
-
-Backend (Rutas de Flask)
-/: Maneja GET para la página inicial y POST para la descarga de canciones. Utiliza hilos (threading) para descargas en segundo plano y evitar bloqueos.
-
-/fetch_tracklist: Obtiene listas de canciones de MusicBrainz. Almacena la información en la sesión para la creación de subcarpetas.
-
-/status/: Consulta el progreso de la descarga.
-
-/download/path:filename: Sirve los archivos descargados.
-
-Proceso de Descarga
-yt-dlp extrae el audio como MP3, buscando la mejor calidad.
-
-Los archivos se guardan en la carpeta downloads o en la subcarpeta artista/álbum.
-
-El progreso se rastrea en un diccionario global y se actualiza en un hilo dedicado.
-
-Dependencias
-Dependencia	Función
-Flask	Framework web.
-yt-dlp	Descargador de YouTube.
-musicbrainzngs	Cliente de la API de MusicBrainz.
-FFmpeg	(Instalado Separadamente) Necesario para la conversión de audio.
-
-Exportar a Hojas de cálculo
-Seguridad y Notas Adicionales
-Se ejecuta localmente; no requiere alojamiento externo.
-
-Sanea los nombres de archivo para evitar problemas.
-
-Maneja los errores con modales de feedback.
-
-Para contribuciones o problemas, abre un pull request o una issue en GitHub.
+This app is a Flask-based web server that integrates yt-dlp for YouTube audio extraction, MusicBrainz for tracklist fetching, and client-side JavaScript for UI interactions.
+
+### How It Works
+
+#### Frontend (HTML/CSS/JS)
+- The UI is rendered via a Jinja-like template string in Flask.
+- JavaScript handles form submissions via AJAX, progress polling, theme toggling (stored in localStorage), and modal popups for feedback.
+- CSS provides responsive design with gradients, shadows, and mode-specific colors.
+
+#### Backend (Flask Routes)
+- `/`: Handles GET for initial page and POST for downloading songs. Uses threading for background downloads to avoid blocking.
+- `/fetch_tracklist`: Fetches tracklists from MusicBrainz. If no album, fetches artist's songs (up to 100 unique). Stores in session for subfolder creation.
+- `/status/<task_id>`: Polls download progress.
+- `/download/<path:filename>`: Serves downloaded files.
+
+#### Downloading Process
+- yt-dlp extracts audio as MP3, aiming for best quality.
+- Files save to `downloads` or artist/album subfolder.
+- Progress tracked in a global dict, updated in a thread.
+
+#### Dependencies
+- **Flask**: Web framework.
+- **yt-dlp**: YouTube downloader.
+- **musicbrainzngs**: MusicBrainz API client.
+- **FFmpeg**: Required for audio conversion (installed separately).
+
+#### Security/Notes
+- Runs locally; no external hosting.
+- Sanitizes filenames to prevent issues.
+- Handles errors with modals.
+
+For contributions or issues, open a pull request or issue on GitHub.
 
 By Santiago Game Lover
