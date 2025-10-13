@@ -1,6 +1,6 @@
 Free  MP3 Downloader
 
-This is a simple web application built with Flask that allows users to download MP3 audio from YouTube videos by searching song titles or fetching tracklists from albums/artists using MusicBrainz API. It supports single songs, lists of songs, and automatic folder organization for albums or artists.
+This is a simple web application built with Flask that allows users to download MP3 audio by searching song titles or fetching tracklists from albums/artists using MusicBrainz API. It supports single songs, lists of songs, and automatic folder organization for albums or artists.
 Features:
 
 Search and download individual songs or lists.
