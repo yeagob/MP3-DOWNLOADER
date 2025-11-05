@@ -6,6 +6,12 @@ import musicbrainzngs
 import threading
 import uuid
 import time
+import sys
+import subprocess
+
+# Auto-update yt-dlp and clear cache at startup
+subprocess.run([sys.executable, '-m', 'pip', 'install', '--upgrade', 'yt-dlp'], capture_output=True)
+subprocess.run([sys.executable, '-m', 'yt_dlp', '--rm-cache-dir'], capture_output=True)
 
 app = Flask(__name__)
 app.secret_key = 'super_secret_key'  # Needed for session
@@ -129,20 +135,6 @@ FORM_TEMPLATE = '''
         }
         body.dark .error { color: #f87171; }
         body.light .error { color: #ef4444; }
-        .legal-notice {
-            padding: 12px;
-            border-radius: 6px;
-            margin-top: 20px;
-            border: 1px solid;
-        }
-        body.dark .legal-notice {
-            background-color: #713f12;
-            border-color: #a16207;
-        }
-        body.light .legal-notice {
-            background-color: #fef3c7;
-            border-color: #fcd34d;
-        }
         #progress-container {
             display: none;
             width: 100%;
@@ -172,17 +164,17 @@ FORM_TEMPLATE = '''
             cursor: pointer;
             font-size: 24px;
         }
-        .thanks-section {
+        .thanks-section, .legal-notice {
             margin-top: 20px;
             padding: 12px;
             border-radius: 6px;
             border: 1px solid;
         }
-        body.dark .thanks-section {
+        body.dark .thanks-section, body.dark .legal-notice {
             background-color: #334155;
             border-color: #475569;
         }
-        body.light .thanks-section {
+        body.light .thanks-section, body.light .legal-notice {
             background-color: #dbeafe;
             border-color: #bfdbfe;
         }
@@ -271,6 +263,13 @@ FORM_TEMPLATE = '''
 
         function startDownload(formId) {
             const form = document.getElementById(formId);
+            if (formId === 'fetch-form' && form.artist.value.trim() === '' && form.album.value.trim() === '') {
+                showModal('Please provide at least an artist or album name.');
+                return false;
+            }
+            if (formId === 'fetch-form' && form.album.value.trim() === '' && form.artist.value.trim() !== '') {
+                form.album.value = 'all';
+            }
             const formData = new FormData(form);
             const xhr = new XMLHttpRequest();
             xhr.open('POST', form.action);
@@ -343,13 +342,13 @@ FORM_TEMPLATE = '''
     <!-- Form for fetching album tracklist -->
     <form id="fetch-form" method="post" action="/fetch_tracklist" onsubmit="return startDownload('fetch-form');">
         <input type="text" name="artist" placeholder="Artist (optional for album, required for all songs)" value="{{ artist or '' }}">
-        <input type="text" name="album" placeholder="Album name (optional)">
+        <input type="text" name="album" placeholder="Album name (optional, leave empty for all artist's songs)">
         <button type="submit">Fetch Tracklist</button>
     </form>
     
     <!-- Main form for downloading -->
     <form id="download-form" method="post" action="/" onsubmit="return startDownload('download-form');">
-        <textarea id="title-textarea" name="title" placeholder="Song title or list...">{{ prefill_text }}</textarea>
+        <textarea id="title-textarea" name="title" placeholder="Song title or list..." style="height: 750px;">{{ prefill_text }}</textarea>
         <button type="submit">Download MP3(s)</button>
     </form>
     
@@ -376,12 +375,6 @@ FORM_TEMPLATE = '''
             </ul>
         {% endif %}
     </div>
-    
-    <div class="legal-notice">
-        <h2>Legal Notice</h2>
-        <p>We are using the services of Y2meta. Is it legal to use our YouTube to MP3 Downloader? Our Y2meta tool is completely legal to use on your device. We respect all YouTube channel owners; it depends on your needs.</p>
-        <p>This process is legal because we handle everything locally on your device through open-source tools, accessing YouTube via public means.</p>
-    </div>
 
     <div class="thanks-section">
         <h2>Thanks to the Creators</h2>
@@ -392,6 +385,12 @@ FORM_TEMPLATE = '''
             <li><a href="https://flask.palletsprojects.com/" target="_blank">Flask</a> - Lightweight web framework.</li>
             <li><a href="https://ffmpeg.org/" target="_blank">FFmpeg</a> - Multimedia framework for audio extraction.</li>
         </ul>
+    </div>
+
+    <div class="legal-notice">
+        <h2>Legal Notice</h2>
+        <p>We are using the services of Y2meta. Is it legal to use our YouTube to MP3 Downloader? Our Y2meta tool is completely legal to use on your device. We respect all YouTube channel owners; it depends on your needs.</p>
+        <p>This process is legal because we handle everything locally on your device through open-source tools, accessing YouTube via public means.</p>
     </div>
 
     <!-- The Modal -->
@@ -491,7 +490,7 @@ def fetch_tracklist():
         if not artist and not album:
             raise ValueError("Provide at least an artist or album name.")
 
-        if album:
+        if album and album.lower() != 'all':
             # Search for album
             search_params = {'release': album}
             if artist:
@@ -518,9 +517,9 @@ def fetch_tracklist():
             album_folder = sanitize_filename(folder_name)
 
         else:
-            # No album, fetch all songs by artist (limit to 100 unique)
+            # Fetch all songs by artist (limit to 100 unique)
             if not artist:
-                raise ValueError("Artist is required when no album is provided.")
+                raise ValueError("Artist is required when fetching all songs.")
             
             result = musicbrainzngs.search_artists(artist=artist, limit=1)
             if not result['artist-list']:
