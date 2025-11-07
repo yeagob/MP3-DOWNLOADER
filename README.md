@@ -25,15 +25,23 @@ This is a simple web application built with Flask that allows users to download 
    - Restart Command Prompt to apply changes.
    - Verify: Run `ffmpeg -version` in Command Prompt. If it fails, double-check the PATH.
 
-3. **Prepare the App Files**:
-   - Save the main code as `app.py` in a new folder (e.g., `C:\mp3-downloader`).
-   - In the same folder, create `install.bat` and `run.bat` with the following contents (copy-paste into Notepad and save as .bat):
+3. **Install Python Dependencies**:
+   - Navigate to the project folder in Command Prompt: `cd path\to\MP3-DOWNLOADER`
+   - Run: `pip install -r requirements.txt`
+   - This will install Flask, yt-dlp, and musicbrainzngs automatically.
+   - If errors occur (e.g., pip not found), ensure Python is in PATH and run `python -m ensurepip` if needed.
 
-     **install.bat**:
+4. **Run the App**:
+   - In the project folder, run: `python app.py`
+   - Access at `http://127.0.0.1:5000/`
+   - If errors persist (e.g., FFmpeg not found), verify FFmpeg installation and PATH. For yt-dlp issues, ensure no antivirus blocks it.
+
+**Optional - Create batch files for convenience**:
+   - Create `install.bat`:
      ```
      @echo off
      echo Installing dependencies...
-     pip install flask yt-dlp musicbrainzngs
+     pip install -r requirements.txt
      if %errorlevel% neq 0 (
          echo Error installing packages. Ensure pip is installed and try again.
          pause
@@ -43,7 +51,7 @@ This is a simple web application built with Flask that allows users to download 
      )
      ```
 
-     **run.bat**:
+   - Create `run.bat`:
      ```
      @echo off
      echo Running the app...
@@ -51,32 +59,24 @@ This is a simple web application built with Flask that allows users to download 
      pause
      ```
 
-4. **Install Dependencies and Run**:
-   - Navigate to the folder in Command Prompt: `cd C:\mp3-downloader` (replace with your path).
-   - Run `install.bat` to install the Python packages (Flask, yt-dlp, musicbrainzngs). This may take a few minutes.
-   - If errors occur (e.g., pip not found), ensure Python is in PATH and run `python -m ensurepip` if needed.
-   - Run `run.bat` to start the app.
-   - Access at `http://127.0.0.1:5000/`.
-   - If errors persist (e.g., FFmpeg not found), verify FFmpeg installation and PATH. For yt-dlp issues, ensure no antivirus blocks it.
-
 ### Linux
 
 1. **Install Python**:
    - Most distributions have Python pre-installed. Check: `python3 --version`.
    - If not, install: `sudo apt update && sudo apt install python3 python3-pip` (Ubuntu/Debian) or equivalent for your distro (e.g., `sudo dnf install python3 python3-pip` for Fedora). Use Python 3.8 or higher.
 
-2. **Install Dependencies**:
-   - Run: `pip install flask yt-dlp musicbrainzngs`.
-
-3. **Install FFmpeg** (Required for audio extraction):
+2. **Install FFmpeg** (Required for audio extraction):
    - Run: `sudo apt install ffmpeg` (Ubuntu/Debian) or equivalent (e.g., `sudo dnf install ffmpeg` for Fedora).
    - Verify: `ffmpeg -version`.
 
+3. **Install Python Dependencies**:
+   - Navigate to the project folder: `cd path/to/MP3-DOWNLOADER`
+   - Run: `pip install -r requirements.txt` (or `pip3 install -r requirements.txt`)
+   - This will install Flask, yt-dlp, and musicbrainzngs automatically.
+
 4. **Run the App**:
-   - Save the code as `app.py`.
-   - In terminal, navigate to the folder: `cd path/to/folder`.
-   - Run: `python3 app.py`.
-   - Access at `http://127.0.0.1:5000/`.
+   - In the project folder, run: `python3 app.py`
+   - Access at `http://127.0.0.1:5000/`
    - If errors occur, ensure all packages installed successfully and FFmpeg is in PATH.
 
 ### Mac
@@ -84,24 +84,24 @@ This is a simple web application built with Flask that allows users to download 
 1. **Install Python**:
    - Download from [python.org](https://www.python.org/downloads/) or use Homebrew: `brew install python`. Use Python 3.8 or higher.
 
-2. **Install Dependencies**:
-   - Run: `pip install flask yt-dlp musicbrainzngs`.
-
-3. **Install FFmpeg** (Required for audio extraction):
+2. **Install FFmpeg** (Required for audio extraction):
    - Install Homebrew if not present: `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`.
    - Run: `brew install ffmpeg`.
    - Verify: `ffmpeg -version`.
 
+3. **Install Python Dependencies**:
+   - Navigate to the project folder: `cd path/to/MP3-DOWNLOADER`
+   - Run: `pip install -r requirements.txt`
+   - This will install Flask, yt-dlp, and musicbrainzngs automatically.
+
 4. **Run the App**:
-   - Save the code as `app.py`.
-   - In Terminal, navigate to the folder: `cd path/to/folder`.
-   - Run: `python app.py`.
-   - Access at `http://127.0.0.1:5000/`.
+   - In the project folder, run: `python app.py`
+   - Access at `http://127.0.0.1:5000/`
    - If errors occur, ensure Homebrew is updated (`brew update`) and all packages installed.
 
 **General Troubleshooting**:
 - If pip fails, upgrade it: `python -m pip install --upgrade pip`.
-- For "ModuleNotFoundError", rerun pip installs.
+- For "ModuleNotFoundError", rerun: `pip install -r requirements.txt`.
 - Ensure no firewalls/antivirus block yt-dlp or FFmpeg.
 - The app requires internet for YouTube/MusicBrainz access.
 
