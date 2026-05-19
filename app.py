@@ -9,8 +9,12 @@ import time
 import sys
 import subprocess
 
+# Force UTF-8 encoding for standard output to avoid UnicodeEncodeError in console
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8')
+
 # Auto-update yt-dlp and clear cache at startup
-subprocess.run([sys.executable, '-m', 'pip', 'install', '--upgrade', 'yt-dlp'], capture_output=True)
+subprocess.run([sys.executable, '-m', 'pip', 'install', '--user', '--upgrade', 'yt-dlp'], capture_output=True)
 subprocess.run([sys.executable, '-m', 'yt_dlp', '--rm-cache-dir'], capture_output=True)
 
 app = Flask(__name__)
@@ -492,10 +496,7 @@ def index():
     session.pop('album_folder', None)
     return render_template_string(FORM_TEMPLATE, download_links=download_links, errors=errors, prefill_text=prefill_text, artist=artist, album=album)
 
-@app.route('/fetch_tracklist', methods=['POST'])
-def fetch_tracklist():
-    artist = request.form.get('artist', '').strip()
-    album = request.form.get('album', '').strip()
+def fetch_tracklist_internal(artist, album):
     prefill_text = ''
     errors = []
     album_folder = None
@@ -552,17 +553,122 @@ def fetch_tracklist():
             
             # Set folder name to artist
             album_folder = sanitize_filename(artist)
+            
+    except Exception as e:
+        errors.append(f"Failed to fetch tracklist: {str(e)}")
+        
+    return prefill_text, album_folder, errors
 
+@app.route('/fetch_tracklist', methods=['POST'])
+def fetch_tracklist():
+    artist = request.form.get('artist', '').strip()
+    album = request.form.get('album', '').strip()
+    
+    prefill_text, album_folder, errors = fetch_tracklist_internal(artist, album)
+    
+    if not errors:
         session['album_folder'] = album_folder
         session['prefill_text'] = prefill_text
         session['artist'] = artist
         session['album'] = album
     
-    except Exception as e:
-        errors.append(f"Failed to fetch tracklist: {str(e)}")
-    
     # Return JSON for JS to update textarea and show modal
     return jsonify({'prefill_text': prefill_text, 'errors': errors})
+
+def download_task_sync(queries, album_folder=None):
+    download_folder = BASE_DOWNLOAD_FOLDER
+    if album_folder:
+        download_folder = os.path.join(BASE_DOWNLOAD_FOLDER, album_folder)
+        if not os.path.exists(download_folder):
+            os.makedirs(download_folder)
+
+    total = len(queries)
+    print(f"Starting download of {total} items to directory: {download_folder}")
+    for idx, query in enumerate(queries, 1):
+        print(f"\n[{idx}/{total}] Processing query: '{query}'...")
+        try:
+            ydl_opts = {
+                'format': 'bestaudio/best',
+                'postprocessors': [{
+                    'key': 'FFmpegExtractAudio',
+                    'preferredcodec': 'mp3',
+                    'preferredquality': '320',
+                }],
+                'quiet': True,
+                'no_warnings': True,
+                # Anti-bot configuration to avoid 403 Forbidden errors
+                'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'http_headers': {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                    'Accept-Language': 'en-us,en;q=0.5',
+                    'Sec-Fetch-Mode': 'navigate',
+                },
+                'extractor_args': {
+                    'youtube': {
+                        'player_client': ['android', 'web'],
+                        'skip': ['hls', 'dash']
+                    }
+                },
+            }
+
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                info = ydl.extract_info(f"ytsearch1:{query}", download=False)['entries'][0]
+                video_title = info['title']
+
+            sanitized_title = sanitize_filename(video_title)
+            expected_filename = f"{sanitized_title}.mp3"
+            ydl_opts['outtmpl'] = os.path.join(download_folder, '%(title)s.%(ext)s')
+
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                ydl.download([f"ytsearch1:{query}"])
+                
+            print(f"[{idx}/{total}] SUCCESS: Downloaded and saved to {os.path.join(download_folder, expected_filename)}")
+
+        except Exception as e:
+            print(f"[{idx}/{total}] ERROR: Failed to download '{query}': {str(e)}")
+            
+        time.sleep(0.5)
+
+def run_cli(args):
+    print("====================================")
+    print("     MP3 DOWNLOADER - CLI MODE      ")
+    print("====================================")
+    
+    queries = []
+    album_folder = None
+    
+    if args.artist or args.album:
+        artist = args.artist or ""
+        album = args.album or ""
+        print(f"Fetching tracklist from MusicBrainz for artist='{artist}', album='{album}'...")
+        prefill_text, folder, errors = fetch_tracklist_internal(artist, album)
+        
+        if errors:
+            print(f"ERROR: {errors[0]}")
+            sys.exit(1)
+            
+        print(f"SUCCESS: Fetched tracklist containing {len(prefill_text.splitlines())} tracks:")
+        print(prefill_text)
+        print("------------------------------------")
+        
+        album_folder = folder
+        
+        if args.list_only:
+            print("Done (List-only mode).")
+            sys.exit(0)
+            
+        queries = [q.strip() for q in prefill_text.splitlines() if q.strip()]
+        
+    if args.songs:
+        queries.extend(args.songs)
+        
+    if not queries:
+        print("ERROR: No songs or queries specified to download.")
+        print("Please provide song search queries as arguments, or fetch a tracklist using --artist and --album.")
+        sys.exit(1)
+        
+    download_task_sync(queries, album_folder=album_folder)
 
 @app.route('/status/<task_id>')
 def get_status(task_id):
@@ -575,4 +681,19 @@ def download(filename):
     return send_from_directory(BASE_DOWNLOAD_FOLDER, filename)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="YouTube to MP3 Downloader - CLI and Web Server")
+    parser.add_argument("--server", action="store_true", help="Start the Flask web server (default if no other arguments given)")
+    parser.add_argument("--artist", type=str, help="Artist name to fetch tracklist from MusicBrainz")
+    parser.add_argument("--album", type=str, help="Album name to fetch tracklist from MusicBrainz")
+    parser.add_argument("--list-only", action="store_true", help="Only fetch and print tracklist, do not download")
+    parser.add_argument("songs", nargs="*", help="Song titles or YouTube search queries to download")
+    
+    args = parser.parse_args()
+    
+    if args.server or (not args.artist and not args.album and not args.songs):
+        app.run(debug=True)
+    else:
+        run_cli(args)
+
