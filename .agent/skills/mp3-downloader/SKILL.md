@@ -1,6 +1,6 @@
 ---
 name: mp3-downloader
-description: Downloader for MP3 audio files and tracklists from YouTube/MusicBrainz. Use when the user requests downloading songs, extracting audio from YouTube videos/searches, fetching tracklists from artists or albums, or managing local music downloads.
+description: Downloader for MP3 audio files and tracklists from YouTube/MusicBrainz. Activates when the user requests downloading songs, extracting audio from YouTube videos/searches, fetching tracklists from artists or albums, or managing local music downloads. This skill MUST be used whenever the user mentions downloading music, songs, or tracklists, including Spanish requests containing keywords like 'bajar', 'descargar', 'canción', 'música', or related tracklist queries.
 ---
 
 # MP3 Downloader Skill
